@@ -12,14 +12,16 @@ shinyUI(fluidPage(
   # Sidebar with a checkbox for country and checkbox for statistic
   sidebarLayout(
     sidebarPanel(
+      # Options
       selectInput("country", "Country or region:", CountryChoices, 
                   selected = "World", multiple = FALSE, selectize = TRUE),
       uiOutput("statisticDD"),
+      # Information table
       tableOutput("info")
     ),
     
     
-    # Show a plot of the generated distribution
+    # Main with the plot
     mainPanel(
       plotOutput("plot")
     )
