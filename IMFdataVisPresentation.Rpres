@@ -1,0 +1,94 @@
+IMF data Visualization
+========================================================
+author: Joris Van den Bossche
+date: September 21, 2016
+autosize: true
+
+Overview
+========================================================
+For the coursera course "Making Data Products", I have made a shiny application where you can view all the staticstics that were gathered by the International Monetary Fund (IMF). In this presentation I will give you an overview of:
+- The data origin
+- Cleaning the data
+- Creating the shiny app
+
+And of course in the last slide, I will show you the shiny app!
+
+The Data origin
+========================================================
+
+Data was downloaded from the [IMF website](http://www.imf.org/en/Data>). The chosen data set name is [International Financial Statistics](http://data.imf.org/?sk=388DFA60-1D26-4ADE-B505-A05A558D9A42&sid=1459341854713&ss=1469128361826).
+![Choose set](download1.png)
+
+```{r, out.width = "400px", echo=FALSE}
+knitr::include_graphics("download2.png")
+```
+
+More information about the data set can be found [here](http://data.imf.org/?sk=5DABAFF2-C5AD-4D27-A175-1253419C02D1).
+
+The data can then be read as such:
+```{r, eval = FALSE}
+IFS <- read.csv("raw_data/IFS_08-26-2016 00-07-35-66_timeSeries.csv", stringsAsFactors = FALSE)
+```
+
+
+Cleaning the data
+========================================================
+The data has been cleaned as following. First all the data from before 2000 was removed, since it contained mostly missing data
+```{r, eval = FALSE}
+IFS <- IFS[, -grep("19",names(IFS))]
+```
+The data was structered so that every year, quarter and month had a column. The rows had three copies of the same data for each type of time window. I removed all but the month's columns and then remove all the rows that contain no data. The first 5 columns had to remain untouched, since they contained the country data.
+```{r, eval = FALSE}
+IFS <- IFS[, c(1:(n-1),grep("M",names(IFS)))]
+for(i in 6:dim(IFS)[2]) IFS[, i] <- as.numeric(IFS[, i])
+library(data.table)
+IFS <- data.table(IFS)
+IFS <- IFS[, nas := sum(sapply(.SD, is.na)), .SDcols = 6:dim(IFS)[2], by=1:NROW(IFS)]
+IFS <- IFS[nas<dim(IFS)[2]-6,]
+IFS$nas <- NULL
+```
+Last, I changed the name of the column "ï.Country.Name" to "Country.Name", because the "ï" was fairly troublesome.
+```{r, eval = FALSE}
+names(IFS)[1] <- "Country.Name"
+```
+
+Creating the Shiny app
+========================================================
+
+[Here](https://github.com/JorisVdBos/IMFDataVis) you can find the source code of the Shiny app (and also this presentation!). To illustrate how the graphs are made, an example for country Belgium, and statistic Value of Imports in Euro:
+```{r, eval=TRUE, echo = FALSE, results="asis"}
+library(data.table)
+library(rCharts)
+IFS <- data.table(read.csv("exampleBelgium.csv", stringsAsFactors = FALSE))
+IFS$X <- NULL
+```
+```{r, echo = TRUE, eval = FALSE}
+country <- "Belgium"
+statistic <- "Value of Imports, Euros"
+data <- IFS[Country.Name == country & Indicator.Name == statistic & Attribute == "Value",]
+data <- data.frame(date = paste(substr(names(data)[7:210], 2, 5), substr(names(data)[7:210], 7, 8), sep="-"),
+                   value = as.numeric(t(data)[7:210]))
+plot <- mPlot(x = "date", y = "value", type = "Line", 
+                  data = data)
+plot$set(pointSize = 0, lineWidth = 1)
+plot$print('chart2', include_assets = TRUE, cdn = TRUE)
+```
+
+The Shiny app: Example output
+========================================================
+```{r, echo = FALSE, eval = TRUE, results="asis"}
+country <- "Belgium"
+statistic <- "Value of Imports, Euros"
+data <- IFS[Country.Name == country & Indicator.Name == statistic & Attribute == "Value",]
+data <- data.frame(date = paste(substr(names(data)[7:210], 2, 5), substr(names(data)[7:210], 7, 8), sep="-"),
+                   value = as.numeric(t(data)[7:210]))
+plot <- mPlot(x = "date", y = "value", type = "Line", 
+                  data = data)
+plot$set(pointSize = 0, lineWidth = 1)
+plot$print('chart2', include_assets = TRUE, cdn = TRUE)
+```
+
+The Shiny app!
+========================================================
+
+Click [here](https://jorisvdbos.shinyapps.io/IMFdataVis/) to be taken to the shiny app webpage.
