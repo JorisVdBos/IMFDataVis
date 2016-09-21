@@ -1,30 +1,27 @@
-
-# This is the user-interface definition of a Shiny web application.
-# You can find out more about building applications with Shiny here:
-#
-# http://shiny.rstudio.com
-#
+source("RawData/loadData.R")
+source("plotFunc.R")
 
 library(shiny)
+library(ggplot2)
 
 shinyUI(fluidPage(
 
   # Application title
-  titlePanel("Old Faithful Geyser Data"),
+  titlePanel("Exploring the IMF statistics data"),
 
-  # Sidebar with a slider input for number of bins
+  # Sidebar with a checkbox for country and checkbox for statistic
   sidebarLayout(
     sidebarPanel(
-      sliderInput("bins",
-                  "Number of bins:",
-                  min = 1,
-                  max = 50,
-                  value = 30)
+      selectInput("country", "Country or region:", CountryChoices, 
+                  selected = NULL, multiple = FALSE, selectize = TRUE),
+      uiOutput("statisticDD")
     ),
-
+    
+    
     # Show a plot of the generated distribution
     mainPanel(
-      plotOutput("distPlot")
+      "Plot"
     )
   )
 ))
+
