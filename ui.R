@@ -2,7 +2,7 @@ source("RawData/loadData.R")
 source("plotFunc.R")
 
 library(shiny)
-library(ggplot2)
+library(rCharts)
 
 shinyUI(fluidPage(
 
@@ -13,14 +13,15 @@ shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
       selectInput("country", "Country or region:", CountryChoices, 
-                  selected = NULL, multiple = FALSE, selectize = TRUE),
-      uiOutput("statisticDD")
+                  selected = "World", multiple = FALSE, selectize = TRUE),
+      uiOutput("statisticDD"),
+      tableOutput("info")
     ),
     
     
     # Show a plot of the generated distribution
     mainPanel(
-      "Plot"
+      plotOutput("plot")
     )
   )
 ))

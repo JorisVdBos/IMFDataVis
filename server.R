@@ -8,8 +8,12 @@ shinyServer(function(input, output){
     selectInput("statistic", "Statistic:", 
                 IFS[Country.Name == getCountry()]$Indicator.Name)
   })
-  output$distPlot <- renderPlot({
-  #plot(make)
+  output$info <- renderTable({
+    plotInfo(input$country, input$statistic)
+  }) 
+  output$plot <- renderPlot({
+  plot(makeTs(input$country, input$statistic), ylab="")
+    
   })
 
 })
