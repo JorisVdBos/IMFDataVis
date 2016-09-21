@@ -3,6 +3,7 @@ source("plotFunc.R")
 
 library(shiny)
 library(rCharts)
+options(RCHART_LIB = 'morris')
 
 shinyUI(fluidPage(
 
@@ -23,7 +24,7 @@ shinyUI(fluidPage(
     
     # Main with the plot
     mainPanel(
-      plotOutput("plot")
+      showOutput("plot", lib = "morris")
     )
   )
 ))

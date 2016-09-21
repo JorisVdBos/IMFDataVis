@@ -17,8 +17,11 @@ shinyServer(function(input, output){
   }) 
   
   # The plot
-  output$plot <- renderPlot({
-    plot(makeTs(input$country, input$statistic), ylab="")
+  output$plot <- renderChart2({
+    plot <- mPlot(x = "date", y = "value", type = "Line", 
+                  data = makeTs(input$country, input$statistic))
+    plot$set(pointSize = 0, lineWidth = 1)
+    return(plot)
   })
   
 })
